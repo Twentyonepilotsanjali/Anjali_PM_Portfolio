@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anjali Shukla — Product Manager</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #0A0A0A; }
+    button { font-family: inherit; }
+    a { font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + ReactDOM from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+  (function () {
+    "use strict";
+
+    const { useState, useEffect, useRef } = React;
+    const e = React.createElement;
+
+    /* ─── EDIT THESE ─────────────────────────────── */
+    const ME = {
+      name: "Anjali Shukla",
+      title: "Product Manager",
+      tagline: "I turn messy data into decisions that actually ship.",
+      bio: "PM with a knack for making complexity legible — to users, to engineers, and to leadership. Currently exploring how vibe coding lets PMs prototype faster without engineering dependency.",
+      email: "you@email.com",
+      linkedin: "https://linkedin.com/in/yourhandle",
+      github: "https://github.com/yourhandle",
+    };
+
+    const PROJECTS = [
+      {
+        id: 1,
+        label: "Case study 01",
+        title: "PM Metrics Dashboard",
+        description:
+          "A live SaaS product dashboard tracking MAU, churn, NPS, and MRR — with a filterable feature request table and time-range toggle. Built in a single afternoon using vibe coding, zero engineering support.",
+        tags: ["React", "Recharts", "Vibe coding", "SaaS metrics"],
+        url: "https://your-dashboard-url.vercel.app",
+        stat: { value: "24,500", label: "Monthly active users tracked" },
+        live: true,
+      },
+      {
+        id: 2,
+        label: "Case study 02",
+        title: "Feature Prioritization Tool",
+        description:
+          "An interactive RICE scoring calculator that lets PMs weight features across Reach, Impact, Confidence, and Effort — with a live-sorted backlog view. Built to replace the spreadsheet my team used for quarterly planning.",
+        tags: ["React", "Data viz", "Prioritization"],
+        url: "#",
+        stat: { value: "3×", label: "faster than spreadsheet workflow" },
+        live: false,
+      },
+      {
+        id: 3,
+        label: "Case study 03",
+        title: "A/B Test Results Analyzer",
+        description:
+          "A dashboard for interpreting experiment results — statistical significance calculator, variant comparison charts, and a plain-English summary of what the data means for the product decision.",
+        tags: ["React", "Experimentation", "Statistics"],
+        url: "#",
+        stat: { value: "< 5min", label: "to read any experiment result" },
+        live: false,
+      },
+    ];
+    /* ─────────────────────────────────────────────── */
+
+    /* ── Theme tokens ── */
+    const T = {
+      primary:      "#0891B2",
+      primaryDark:  "#0E7490",
+      primaryDeep:  "#164E63",
+      fillXLight:   "#ECFEFF",
+      fillLight:    "#F0FDFA",
+      fillMid:      "#CFFAFE",
+      borderAccent: "#A5F3FC",
+      barPassive:   "#A5F3FC",
+    };
+
+    /* ── Animated counter hook ── */
+    function useCounter(target, duration, start) {
+      duration = duration || 1600;
+      const [count, setCount] = useState(0);
+      useEffect(function () {
+        if (!start) return;
+        var startTime = null;
+        function step(ts) {
+          if (!startTime) startTime = ts;
+          var progress = Math.min((ts - startTime) / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          setCount(Math.round(eased * target));
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }, [start, target, duration]);
+      return count;
+    }
+
+    /* ── Mini dashboard SVG preview ── */
+    function DashPreview(props) {
+      var colors = props.colors;
+      var bars = [45, 62, 38, 78, 55, 91];
+      var c = colors || {
+        bar: T.barPassive,
+        barActive: T.primary,
+        card: T.fillXLight,
+        line: T.fillMid,
+      };
+      return e("svg", {
+        viewBox: "0 0 180 110",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: { width: "100%", height: "100%" },
+        "aria-hidden": "true",
+      },
+        e("rect", { x: 0, y: 0, width: 180, height: 110, rx: 6, fill: "#FAFAFA" }),
+        [0, 1, 2].map(function (i) {
+          return e("rect", { key: i, x: 6 + i * 58, y: 6, width: 52, height: 20, rx: 3, fill: c.card });
+        }),
+        e("rect", { x: 6, y: 34, width: 108, height: 70, rx: 3, fill: "white", stroke: c.line, strokeWidth: "0.5" }),
+        bars.map(function (h, i) {
+          return e("rect", {
+            key: i,
+            x: 14 + i * 16,
+            y: 34 + 70 - 8 - (h / 100) * 52,
+            width: 10,
+            height: (h / 100) * 52,
+            rx: 2,
+            fill: i === bars.length - 1 ? c.barActive : c.bar,
+          });
+        }),
+        e("rect", { x: 120, y: 34, width: 54, height: 32, rx: 3, fill: "white", stroke: c.line, strokeWidth: "0.5" }),
+        e("rect", { x: 126, y: 40, width: 30, height: 3, rx: 1.5, fill: c.line }),
+        e("rect", { x: 126, y: 47, width: 20, height: 3, rx: 1.5, fill: c.barActive, opacity: 0.5 }),
+        e("rect", { x: 126, y: 54, width: 25, height: 3, rx: 1.5, fill: c.line }),
+        e("rect", { x: 120, y: 72, width: 54, height: 32, rx: 3, fill: "white", stroke: c.line, strokeWidth: "0.5" }),
+        e("rect", { x: 126, y: 78, width: 22, height: 3, rx: 1.5, fill: c.line }),
+        e("rect", { x: 126, y: 85, width: 36, height: 3, rx: 1.5, fill: c.barActive, opacity: 0.4 }),
+        e("rect", { x: 126, y: 92, width: 28, height: 3, rx: 1.5, fill: c.line })
+      );
+    }
+
+    /* ── Thin horizontal rule ── */
+    function HR() {
+      return e("div", { style: { height: "0.5px", background: "#E8E8F0", margin: "0" } });
+    }
+
+    /* ── Tag pill ── */
+    function Tag(props) {
+      return e("span", {
+        style: {
+          display: "inline-block",
+          padding: "3px 10px",
+          borderRadius: "99px",
+          fontSize: "11px",
+          fontWeight: 500,
+          background: T.fillXLight,
+          color: T.primaryDark,
+          marginRight: "5px",
+          marginBottom: "5px",
+          letterSpacing: "0.01em",
+        }
+      }, props.label);
+    }
+
+    /* ── Project card ── */
+    function ProjectCard(props) {
+      var project = props.project;
+      const [hovered, setHovered] = useState(false);
+
+      return e("div", {
+        onMouseEnter: function () { setHovered(true); },
+        onMouseLeave: function () { setHovered(false); },
+        style: {
+          display: "grid",
+          gridTemplateColumns: "1fr 200px",
+          gap: "0",
+          background: hovered ? "#F5FFFE" : "#FFFFFF",
+          border: "0.5px solid",
+          borderColor: hovered ? T.borderAccent : "#E8E8F0",
+          borderRadius: "12px",
+          overflow: "hidden",
+          transition: "border-color 0.2s, background 0.2s",
+          cursor: "default",
+        }
+      },
+        /* Left: content */
+        e("div", { style: { padding: "28px 32px" } },
+          e("div", {
+            style: {
+              fontSize: "10px",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: T.primary,
+              marginBottom: "10px",
+            }
+          }, project.label),
+          e("div", {
+            style: {
+              fontSize: "20px",
+              fontWeight: 600,
+              color: "#0A0A0A",
+              letterSpacing: "-0.02em",
+              marginBottom: "10px",
+              lineHeight: 1.2,
+            }
+          }, project.title),
+          e("div", {
+            style: {
+              fontSize: "13px",
+              color: "#6B6B80",
+              lineHeight: 1.7,
+              marginBottom: "16px",
+              maxWidth: "480px",
+            }
+          }, project.description),
+          e("div", { style: { marginBottom: "20px" } },
+            project.tags.map(function (t) { return e(Tag, { key: t, label: t }); })
+          ),
+          e("div", { style: { display: "flex", alignItems: "center", gap: "20px" } },
+            project.live
+              ? e("a", {
+                  href: project.url,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  style: {
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    color: T.primary,
+                    textDecoration: "none",
+                    padding: "7px 16px",
+                    borderRadius: "8px",
+                    border: "0.5px solid " + T.primary,
+                    transition: "background 0.15s",
+                    background: hovered ? T.fillXLight : "transparent",
+                  }
+                }, "View live dashboard →")
+              : e("span", {
+                  style: {
+                    fontSize: "12px",
+                    color: "#B0B0C0",
+                    padding: "7px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }
+                },
+                  e("span", { style: { width: "6px", height: "6px", borderRadius: "50%", background: "#D0D0E0", display: "inline-block" } }),
+                  "In progress"
+                ),
+            e("div", { style: { borderLeft: "0.5px solid #E8E8F0", paddingLeft: "20px" } },
+              e("div", { style: { fontSize: "18px", fontWeight: 700, color: "#0A0A0A", lineHeight: 1 } }, project.stat.value),
+              e("div", { style: { fontSize: "11px", color: "#A0A0B0", marginTop: "3px" } }, project.stat.label)
+            )
+          )
+        ),
+        /* Right: preview */
+        e("div", {
+          style: {
+            background: hovered ? T.fillLight : "#F7FFFE",
+            borderLeft: "0.5px solid #E8E8F0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px 20px",
+            transition: "background 0.2s",
+          }
+        },
+          e(DashPreview, {
+            colors: project.live
+              ? { bar: T.barPassive, barActive: T.primary, card: T.fillXLight, line: T.fillMid }
+              : { bar: "#E0E0F0", barActive: "#B0B0D0", card: "#F5F5FA", line: "#E8E8F0" }
+          })
+        )
+      );
+    }
+
+    /* ── Main portfolio ── */
+    function PMPortfolio() {
+      var heroRef = useRef(null);
+      const [counterStarted, setCounterStarted] = useState(false);
+      var mau = useCounter(24500, 1800, counterStarted);
+
+      useEffect(function () {
+        var timer = setTimeout(function () { setCounterStarted(true); }, 400);
+        return function () { clearTimeout(timer); };
+      }, []);
+
+      function scrollTo(id) {
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }
+
+      return e("div", {
+        style: {
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          background: "#FFFFFF",
+          color: "#0A0A0A",
+          minHeight: "100vh",
+        }
+      },
+
+        /* ── Nav ── */
+        e("nav", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "20px 48px",
+            borderBottom: "0.5px solid #E8E8F0",
+            position: "sticky",
+            top: 0,
+            background: "rgba(255,255,255,0.95)",
+            backdropFilter: "blur(8px)",
+            zIndex: 100,
+          }
+        },
+          e("div", {
+            style: { fontSize: "14px", fontWeight: 600, letterSpacing: "-0.01em", color: "#0A0A0A" }
+          },
+            "Anjali",
+            e("span", { style: { color: T.primary } }, ".")
+          ),
+          e("div", { style: { display: "flex", gap: "32px" } },
+            [["Work", "work"], ["About", "about"], ["Contact", "contact"]].map(function (item) {
+              var label = item[0], id = item[1];
+              return e("button", {
+                key: id,
+                onClick: function () { scrollTo(id); },
+                style: {
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  color: "#6B6B80",
+                  fontWeight: 500,
+                  transition: "color 0.15s",
+                  padding: 0,
+                },
+                onMouseEnter: function (ev) { ev.target.style.color = "#0A0A0A"; },
+                onMouseLeave: function (ev) { ev.target.style.color = "#6B6B80"; },
+              }, label);
+            })
+          )
+        ),
+
+        /* ── Hero ── */
+        e("section", {
+          ref: heroRef,
+          style: {
+            maxWidth: "860px",
+            margin: "0 auto",
+            padding: "80px 48px 72px",
+            position: "relative",
+          }
+        },
+          /* Live counter */
+          e("div", {
+            style: {
+              position: "absolute",
+              top: "72px",
+              right: "48px",
+              textAlign: "right",
+              opacity: 0.9,
+            }
+          },
+            e("div", {
+              style: {
+                fontSize: "36px",
+                fontWeight: 700,
+                color: T.primary,
+                letterSpacing: "-0.03em",
+                fontVariantNumeric: "tabular-nums",
+                lineHeight: 1,
+              }
+            }, mau.toLocaleString()),
+            e("div", {
+              style: {
+                fontSize: "10px",
+                color: "#A0A0B8",
+                marginTop: "4px",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+              }
+            }, "MAU · live dashboard")
+          ),
+          /* Title badge */
+          e("div", {
+            style: {
+              display: "inline-block",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: T.primary,
+              background: T.fillXLight,
+              padding: "5px 12px",
+              borderRadius: "99px",
+              marginBottom: "24px",
+            }
+          }, ME.title),
+          /* H1 */
+          e("h1", {
+            style: {
+              fontSize: "clamp(42px, 7vw, 68px)",
+              fontWeight: 700,
+              letterSpacing: "-0.035em",
+              lineHeight: 1.05,
+              color: "#0A0A0A",
+              margin: "0 0 24px",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              maxWidth: "580px",
+            }
+          }, ME.name),
+          /* Tagline */
+          e("p", {
+            style: {
+              fontSize: "18px",
+              color: "#6B6B80",
+              lineHeight: 1.6,
+              maxWidth: "480px",
+              margin: "0 0 36px",
+            }
+          }, ME.tagline),
+          /* CTA buttons */
+          e("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap" } },
+            e("button", {
+              onClick: function () { scrollTo("work"); },
+              style: {
+                padding: "11px 24px",
+                borderRadius: "8px",
+                border: "none",
+                background: T.primary,
+                color: "#fff",
+                fontSize: "14px",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "opacity 0.15s",
+              },
+              onMouseEnter: function (ev) { ev.target.style.opacity = "0.88"; },
+              onMouseLeave: function (ev) { ev.target.style.opacity = "1"; },
+            }, "View my work"),
+            e("a", {
+              href: "mailto:" + ME.email,
+              style: {
+                padding: "11px 24px",
+                borderRadius: "8px",
+                border: "0.5px solid " + T.fillMid,
+                background: "transparent",
+                color: T.primary,
+                fontSize: "14px",
+                fontWeight: 500,
+                textDecoration: "none",
+                transition: "background 0.15s",
+                display: "inline-flex",
+                alignItems: "center",
+              },
+              onMouseEnter: function (ev) { ev.currentTarget.style.background = T.fillLight; },
+              onMouseLeave: function (ev) { ev.currentTarget.style.background = "transparent"; },
+            }, "Get in touch")
+          )
+        ),
+
+        e(HR),
+
+        /* ── Work ── */
+        e("section", { id: "work", style: { background: "#F7FFFE", padding: "72px 0" } },
+          e("div", { style: { maxWidth: "860px", margin: "0 auto", padding: "0 48px" } },
+            e("div", {
+              style: {
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+                marginBottom: "36px",
+              }
+            },
+              e("div", null,
+                e("div", {
+                  style: {
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: T.primary,
+                    marginBottom: "8px",
+                  }
+                }, "Selected work"),
+                e("h2", {
+                  style: {
+                    fontSize: "28px",
+                    fontWeight: 700,
+                    letterSpacing: "-0.02em",
+                    color: "#0A0A0A",
+                    margin: 0,
+                    lineHeight: 1.2,
+                  }
+                }, "Products I've built")
+              ),
+              e("div", { style: { fontSize: "12px", color: "#B0B0C0" } }, "All built with vibe coding")
+            ),
+            e("div", { style: { display: "flex", flexDirection: "column", gap: "14px" } },
+              PROJECTS.map(function (p) { return e(ProjectCard, { key: p.id, project: p }); })
+            )
+          )
+        ),
+
+        e(HR),
+
+        /* ── About ── */
+        e("section", { id: "about", style: { padding: "72px 0" } },
+          e("div", {
+            style: {
+              maxWidth: "860px",
+              margin: "0 auto",
+              padding: "0 48px",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "64px",
+              alignItems: "center",
+            }
+          },
+            e("div", null,
+              e("div", {
+                style: {
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: T.primary,
+                  marginBottom: "12px",
+                }
+              }, "About"),
+              e("h2", {
+                style: {
+                  fontSize: "28px",
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                  color: "#0A0A0A",
+                  marginBottom: "16px",
+                  lineHeight: 1.2,
+                }
+              }, "How I work"),
+              e("p", {
+                style: {
+                  fontSize: "15px",
+                  color: "#6B6B80",
+                  lineHeight: 1.8,
+                  margin: "0 0 20px",
+                }
+              }, ME.bio),
+              e("p", {
+                style: {
+                  fontSize: "15px",
+                  color: "#6B6B80",
+                  lineHeight: 1.8,
+                  margin: 0,
+                }
+              }, "I believe the best PMs reduce friction between insight and action — whether that's a cleaner dashboard, a better-written spec, or a prototype that makes a fuzzy idea concrete.")
+            ),
+            e("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } },
+              [
+                { label: "Primary skill", value: "Product strategy & roadmapping" },
+                { label: "Technical edge", value: "Vibe coding — ship prototypes fast" },
+                { label: "Data fluency", value: "SQL, dashboards, experimentation" },
+                { label: "Domain depth", value: "SaaS, B2B, growth products" },
+              ].map(function (item) {
+                return e("div", {
+                  key: item.label,
+                  style: {
+                    padding: "14px 18px",
+                    background: T.fillXLight,
+                    border: "0.5px solid " + T.fillMid,
+                    borderRadius: "10px",
+                  }
+                },
+                  e("div", {
+                    style: {
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: "#B0B0C0",
+                      marginBottom: "4px",
+                    }
+                  }, item.label),
+                  e("div", {
+                    style: { fontSize: "14px", fontWeight: 500, color: "#0A0A0A" }
+                  }, item.value)
+                );
+              })
+            )
+          )
+        ),
+
+        e(HR),
+
+        /* ── Contact ── */
+        e("section", { id: "contact", style: { padding: "72px 0 100px" } },
+          e("div", { style: { maxWidth: "860px", margin: "0 auto", padding: "0 48px" } },
+            e("div", { style: { maxWidth: "480px" } },
+              e("div", {
+                style: {
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: T.primary,
+                  marginBottom: "12px",
+                }
+              }, "Contact"),
+              e("h2", {
+                style: {
+                  fontSize: "36px",
+                  fontWeight: 700,
+                  letterSpacing: "-0.025em",
+                  color: "#0A0A0A",
+                  marginBottom: "16px",
+                  lineHeight: 1.15,
+                }
+              }, "Let's talk."),
+              e("p", {
+                style: {
+                  fontSize: "15px",
+                  color: "#6B6B80",
+                  lineHeight: 1.7,
+                  marginBottom: "32px",
+                }
+              }, "Open to senior PM roles at product-led companies. I respond to every genuine message within 24 hours."),
+              e("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } },
+                /* Email link */
+                e("a", {
+                  href: "mailto:" + ME.email,
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "16px 20px",
+                    background: T.fillXLight,
+                    border: "0.5px solid " + T.fillMid,
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "#0A0A0A",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    transition: "border-color 0.15s, background 0.15s",
+                  },
+                  onMouseEnter: function (ev) {
+                    ev.currentTarget.style.borderColor = T.borderAccent;
+                    ev.currentTarget.style.background = T.fillLight;
+                  },
+                  onMouseLeave: function (ev) {
+                    ev.currentTarget.style.borderColor = T.fillMid;
+                    ev.currentTarget.style.background = T.fillXLight;
+                  },
+                },
+                  e("span", {
+                    style: {
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      background: T.fillMid,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "14px",
+                      flexShrink: 0,
+                    }
+                  }, "✉"),
+                  ME.email
+                ),
+                /* LinkedIn link */
+                e("a", {
+                  href: ME.linkedin,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "16px 20px",
+                    background: T.fillXLight,
+                    border: "0.5px solid " + T.fillMid,
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    color: "#0A0A0A",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    transition: "border-color 0.15s, background 0.15s",
+                  },
+                  onMouseEnter: function (ev) {
+                    ev.currentTarget.style.borderColor = T.borderAccent;
+                    ev.currentTarget.style.background = T.fillLight;
+                  },
+                  onMouseLeave: function (ev) {
+                    ev.currentTarget.style.borderColor = T.fillMid;
+                    ev.currentTarget.style.background = T.fillXLight;
+                  },
+                },
+                  e("span", {
+                    style: {
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      background: T.fillMid,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "14px",
+                      flexShrink: 0,
+                    }
+                  }, "in"),
+                  "LinkedIn profile →"
+                )
+              )
+            )
+          )
+        ),
+
+        /* ── Footer ── */
+        e("div", {
+          style: {
+            borderTop: "0.5px solid #E8E8F0",
+            padding: "20px 48px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }
+        },
+          e("span", { style: { fontSize: "12px", color: "#C0C0D0" } },
+            ME.name + " · Built with vibe coding"
+          ),
+          e("span", { style: { fontSize: "12px", color: "#C0C0D0" } },
+            new Date().getFullYear()
+          )
+        )
+      );
+    }
+
+    /* ── Mount ── */
+    var root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(e(PMPortfolio));
+  })();
+  </script>
+</body>
+</html>
